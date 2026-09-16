@@ -165,6 +165,39 @@ public class TollCalculatorTests
     }
 
     [Fact]
+    public void GetTollFee_Daily_ForTwoPassesCloseTogetherAndFirstIsOutOfHourScope_ChargesOnlyTheHigherFee()
+    {
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime[] passes = { At(6, 15), At(7, 45), At(8, 45) };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(26, fee);
+    }
+    [Fact]
+    public void GetTollFee_Daily_ForTwoPassesCloseTogetherAndFirstAndLastIsOutOfHourScope_ChargesOnlyTheHigherFeeOfTheInterval()
+    {
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime[] passes = { At(6, 15), At(7, 45), At(8, 45), At(17, 45) };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(39, fee);
+    }
+    [Fact]
+    public void GetTollFee_Daily_ForTwoPassesCloseTogetherAndFirstAndLastIsOutOfHourScopeButLastIsInScopeOfSecondToLast_ChargesOnlyTheHigherFeeOfTheInterval()
+    {
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime[] passes = { At(6, 15), At(7, 45), At(8, 45), At(9, 15) };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(39, fee);
+    }
+    [Fact]
     public void GetTollFee_Daily_ForTwoPassesFarApart_StillOnlyChargesTheHigherFee()
     {
         // GetTollFee(Vehicle, DateTime[]) compares Millisecond components
@@ -173,11 +206,11 @@ public class TollCalculatorTests
         // merged, no matter how far apart they are in the day.
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
-        DateTime[] passes = { At(7, 15), At(20, 15) };
+        DateTime[] passes = { At(7, 15), At(15, 15) };
 
         int fee = calculator.GetTollFee(car, passes);
 
-        Assert.Equal(18, fee);
+        Assert.Equal(26, fee);
     }
 
     [Fact]
@@ -189,15 +222,16 @@ public class TollCalculatorTests
         {
             At(2, 0),
             At(7, 0),
-            At(7, 5),
-            At(7, 10),
-            At(7, 15),
+            At(8, 5),
+            At(9, 10),
+            At(10, 15),
         };
 
         int fee = calculator.GetTollFee(car, passes);
 
         Assert.Equal(60, fee);
     }
+
 
     [Fact]
     public void GetTollFee_Daily_ForTollFreeVehicle_IsAlwaysZeroAcrossManyPasses()
