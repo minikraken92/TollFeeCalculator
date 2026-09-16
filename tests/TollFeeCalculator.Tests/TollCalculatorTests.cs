@@ -130,17 +130,35 @@ public class TollCalculatorTests
     }
 
     [Fact]
-    public void GetTollFee_OnSameCalendarDateInDifferentYear_IsNotTreatedAsHoliday()
+    public void GetTollFee_ForNonHolidayQuirkOfAnotherYear_IsNotTreatedAsHoliday()
     {
-        // The holiday list is hard-coded for 2013 only, so the same weekday
-        // rush-hour pass one year later is charged normally.
+        // "All of July is toll-free" is a 2013-only quirk in the hard-coded
+        // list, not a real Swedish public holiday, so it does not generalize
+        // to other years the way SwedenPublicHoliday-backed dates do below.
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
-        DateTime date = new DateTime(2014, 1, 1, 7, 0, 0);
+        DateTime date = new DateTime(2014, 7, 15, 7, 0, 0);
 
         int fee = calculator.GetTollFee(date, car);
 
         Assert.Equal(18, fee);
+    }
+
+    [Theory]
+    [InlineData(2015, 1, 6)]  // Epiphany - a weekday in 2015, unlike in 2013
+    [InlineData(2016, 6, 6)]  // National Day - a weekday in 2016, unlike in 2013
+    public void GetTollFee_OnPublicHolidayInYearsOtherThan2013_IsAlsoZero(int year, int month, int day)
+    {
+        // These come from the SwedenPublicHoliday library, not the 2013
+        // hard-coded list, and so demonstrate the calculator now recognizes
+        // real Swedish public holidays in any year, not just 2013.
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime date = new DateTime(year, month, day, 7, 0, 0);
+
+        int fee = calculator.GetTollFee(date, car);
+
+        Assert.Equal(0, fee);
     }
 
     [Fact]

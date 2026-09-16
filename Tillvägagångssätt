@@ -11,3 +11,5 @@ Refaktorerade getTollFee hanteringen till en switch för bättre synlighet och f
 
 Fixade buggen med minut hanteraren och att man inte kollar löpande på om det är timmarsperioder. Refaktorerade till att använda en addingFee variabel istället för att hålla koll på vilken fee som är högst, för att göra ifsatsen lite mer lättläst med nackdelen att man måste lägga till en sista  totalFee += addingFee efter for loopen (lite smaksak och gillar att man gör en math.max då ser man direkt att det är max värdet man jämför)
 Också funderare att varför man försöker få ut det i millisekunder sen heltalsdividerar det så man slänger bort allting som inte är minuter ändå.
+
+Fixade ett paket som hanterar helgdagar så man inte behöver hårdkoda in varje år.
