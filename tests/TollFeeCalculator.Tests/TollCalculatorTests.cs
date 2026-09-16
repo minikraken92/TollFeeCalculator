@@ -49,21 +49,22 @@ public class TollCalculatorTests
         Assert.Equal(expectedFee, fee);
     }
 
-    // These two slots (9:00-9:29 and 11:00-14:29) fall between the fee table's
-    // if/else branches and are never matched, so they are charged as free even
-    // though they sit inside otherwise-tolled hours.
+    // These two slots (9:00-9:29 and 11:00-14:29) fell between the fee table's
+    // if/else branches and were never matched, so they are charged as free even
+    // though they sat inside otherwise-tolled hours. 
+    // Now controll them so they are not free.
     [Theory]
     [InlineData(9, 15)]
     [InlineData(11, 0)]
     [InlineData(14, 0)]
-    public void GetTollFee_ForSinglePass_HasUncoveredGapsInsideRushHours(int hour, int minute)
+    public void GetTollFee_ForSinglePass_HadUncoveredGapsInsideRushHours(int hour, int minute)
     {
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
 
         int fee = calculator.GetTollFee(At(hour, minute), car);
 
-        Assert.Equal(0, fee);
+        Assert.NotEqual(0, fee);
     }
 
     [Theory]
@@ -79,7 +80,7 @@ public class TollCalculatorTests
         GenericVehicle vehicle = new GenericVehicle(vehicleType);
 
         int fee = calculator.GetTollFee(At(7, 0), vehicle);
-
+        
         Assert.Equal(0, fee);
     }
 
@@ -113,7 +114,9 @@ public class TollCalculatorTests
     [InlineData(2013, 3, 29)]  // Good Friday
     [InlineData(2013, 5, 1)]   // May Day
     [InlineData(2013, 6, 21)]  // Midsummer's Eve
+    [InlineData(2013, 7, 01)]  // Whole of July is toll-free
     [InlineData(2013, 7, 15)]  // Whole of July is toll-free
+    [InlineData(2013, 7, 31)]  // Whole of July is toll-free
     [InlineData(2013, 12, 24)] // Christmas Eve
     public void GetTollFee_OnPublicHoliday_IsAlwaysZero(int year, int month, int day)
     {
