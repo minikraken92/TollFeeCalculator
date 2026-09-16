@@ -198,22 +198,18 @@ public class TollCalculatorTests
 
         int fee = calculator.GetTollFee(car, passes);
 
-        Assert.Equal(39, fee);
+        Assert.Equal(34, fee);
     }
     [Fact]
     public void GetTollFee_Daily_ForTwoPassesFarApart_StillOnlyChargesTheHigherFee()
     {
-        // GetTollFee(Vehicle, DateTime[]) compares Millisecond components
-        // instead of the elapsed time between passes, so the "more than 60
-        // minutes apart" branch never actually triggers - passes are always
-        // merged, no matter how far apart they are in the day.
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
         DateTime[] passes = { At(7, 15), At(15, 15) };
 
         int fee = calculator.GetTollFee(car, passes);
 
-        Assert.Equal(26, fee);
+        Assert.Equal(31, fee);
     }
 
     [Fact]
@@ -228,6 +224,9 @@ public class TollCalculatorTests
             At(8, 5),
             At(9, 10),
             At(10, 15),
+            At(11, 30),
+            At(15, 0),
+            At(16, 15)
         };
 
         int fee = calculator.GetTollFee(car, passes);

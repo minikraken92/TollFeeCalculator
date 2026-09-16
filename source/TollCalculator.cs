@@ -17,25 +17,26 @@ public class TollCalculator
     {
         DateTime intervalStart = dates[0];
         int totalFee = 0;
+        int addingFee = 0;
         foreach (DateTime date in dates)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            int currentFee = GetTollFee(date, vehicle);
 
-            long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-            long minutes = diffInMillies/1000/60;
+            double diffInMinutes = (date - intervalStart).TotalMinutes;
 
-            if (minutes <= 60)
+            if (diffInMinutes <= 60 && diffInMinutes > 0)
             {
-                if (totalFee > 0) totalFee -= tempFee;
-                if (nextFee >= tempFee) tempFee = nextFee;
-                totalFee += tempFee;
+                addingFee = Math.Max(addingFee, currentFee);
             }
             else
             {
-                totalFee += nextFee;
+                totalFee += addingFee;
+                addingFee = currentFee;
+                intervalStart = date;
             }
         }
+        totalFee += addingFee;
+
         if (totalFee > 60) totalFee = 60;
         return totalFee;
     }
