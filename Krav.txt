@@ -16,11 +16,11 @@ Trängselskatt tas ut för fordon som passerar en betalstation måndag till fredag 
 
 
 
-Bug 1 datumen hämtas fel. Tänker göra en switch case så och den blir lättare at se
+Bug 1 datumen hämtas fel. Tänker göra en switch case så och den blir lättare at se, Done
 
-Bug 2 intervallet börjar alltid på dates[0] 
+Bug 2 intervallet börjar alltid på dates[0] Done
 
-bug 3 intervallet räknar inte millisekunderna rätt
+bug 3 intervallet räknar inte millisekunderna rätt Done 
 
 bug 4 hämtar inte helgdag det året
 
