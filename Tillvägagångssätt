@@ -13,3 +13,5 @@ Fixade buggen med minut hanteraren och att man inte kollar löpande på om det �
 Också funderare att varför man försöker få ut det i millisekunder sen heltalsdividerar det så man slänger bort allting som inte är minuter ändå.
 
 Fixade ett paket som hanterar helgdagar så man inte behöver hårdkoda in varje år.
+
+Bad claude lägga till graifk. Han tog eget initiativ att lägga till fordonsgrafik. Jag ändrade till tid då det är det enda som vi matar in.(Lämnar kvar datetime för ev filinläsning)
