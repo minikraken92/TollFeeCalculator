@@ -1,1 +1,13 @@
 Tillvägagångssätt
+
+Skapa upp tester med claud och kontrollerat att de ser relevanta ut och att de fungerar korrekt (Skulle ev utgått från instruktionen och skapat upp tester därifrån)
+Claud varnade även för gap i fee table, intervall jämnförelsen fungerade inte och att helgdagslistan är hårdkodad för 2013
+
+jag identifierade även att intervallet jämförde alltid med första passagen som gjordes och inte om det sker mer passager med timmes intervaller
+
+Korrigerat testerna för att stämma överens med instruktionen. Lagt upp en plan för för att fixa buggar.
+
+Refaktorerade getTollFee hanteringen till en switch för bättre synlighet och fixade buggen med glapp.
+
+Fixade buggen med minut hanteraren och att man inte kollar löpande på om det är timmarsperioder. Refaktorerade till att använda en addingFee variabel istället för att hålla koll på vilken fee som är högst, för att göra ifsatsen lite mer lättläst med nackdelen att man måste lägga till en sista  totalFee += addingFee efter for loopen (lite smaksak och gillar att man gör en math.max då ser man direkt att det är max värdet man jämför)
+Också funderare att varför man försöker få ut det i millisekunder sen heltalsdividerar det så man slänger bort allting som inte är minuter ändå.
