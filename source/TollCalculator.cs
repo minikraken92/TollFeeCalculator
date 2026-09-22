@@ -17,25 +17,26 @@ public class TollCalculator
     {
         DateTime intervalStart = dates[0];
         int totalFee = 0;
+        int addingFee = 0;
         foreach (DateTime date in dates)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            int currentFee = GetTollFee(date, vehicle);
 
-            long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-            long minutes = diffInMillies/1000/60;
+            double diffInMinutes = (date - intervalStart).TotalMinutes;
 
-            if (minutes <= 60)
+            if (diffInMinutes <= 60 && diffInMinutes > 0)
             {
-                if (totalFee > 0) totalFee -= tempFee;
-                if (nextFee >= tempFee) tempFee = nextFee;
-                totalFee += tempFee;
+                addingFee = Math.Max(addingFee, currentFee);
             }
             else
             {
-                totalFee += nextFee;
+                totalFee += addingFee;
+                addingFee = currentFee;
+                intervalStart = date;
             }
         }
+        totalFee += addingFee;
+
         if (totalFee > 60) totalFee = 60;
         return totalFee;
     }
@@ -56,19 +57,22 @@ public class TollCalculator
     {
         if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
 
-        int hour = date.Hour;
-        int minute = date.Minute;
+        TimeOnly time = TimeOnly.FromDateTime(date);
 
-        if (hour == 6 && minute >= 0 && minute <= 29) return 8;
-        else if (hour == 6 && minute >= 30 && minute <= 59) return 13;
-        else if (hour == 7 && minute >= 0 && minute <= 59) return 18;
-        else if (hour == 8 && minute >= 0 && minute <= 29) return 13;
-        else if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
-        else if (hour == 15 && minute >= 0 && minute <= 29) return 13;
-        else if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
-        else if (hour == 17 && minute >= 0 && minute <= 59) return 13;
-        else if (hour == 18 && minute >= 0 && minute <= 29) return 8;
-        else return 0;
+        return time switch
+        {
+            _ when time.Hour < 6 => 0,
+            _ when time.Hour == 6 && time.Minute <= 29 => 8,
+            _ when time.Hour == 6 && time.Minute <= 59 => 13,
+            _ when time.Hour == 7 => 18,
+            _ when time.Hour == 8 && time.Minute <= 29 => 13,
+            _ when time.Hour < 15 => 8,
+            _ when time.Hour == 15 && time.Minute <= 29 => 13,
+            _ when time.Hour == 15 || time.Hour == 16 => 18,
+            _ when time.Hour == 17 => 13,
+            _ when time.Hour == 18 && time.Minute <= 29 => 8,
+            _ => 0
+        };
     }
 
     private Boolean IsTollFreeDate(DateTime date)
