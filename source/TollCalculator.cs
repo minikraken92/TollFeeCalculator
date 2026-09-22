@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using PublicHoliday;
 using TollFeeCalculator;
@@ -19,6 +20,7 @@ public class TollCalculator
     public int GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
         dates.Sort();
+        dates = RemoveDuplicatePasses(dates);
         DateTime intervalStart = dates[0];
         int totalFee = 0;
         int addingFee = 0;
@@ -43,6 +45,25 @@ public class TollCalculator
 
         if (totalFee > 60) totalFee = 60;
         return totalFee;
+    }
+
+    // The same vehicle can't be at two toll cameras at once, so passes this
+    // close together are the same physical pass read twice, not two passes.
+    private static DateTime[] RemoveDuplicatePasses(DateTime[] sortedDates)
+    {
+        List<DateTime> distinctDates = new List<DateTime>();
+        DateTime? lastCountedDate = null;
+
+        foreach (DateTime date in sortedDates)
+        {
+            if (lastCountedDate == null || (date - lastCountedDate.Value).TotalSeconds >= 5)
+            {
+                distinctDates.Add(date);
+                lastCountedDate = date;
+            }
+        }
+
+        return distinctDates.ToArray();
     }
 
     private bool IsTollFreeVehicle(Vehicle vehicle)
