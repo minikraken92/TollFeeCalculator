@@ -67,21 +67,29 @@ public class TollCalculatorTests
         Assert.NotEqual(0, fee);
     }
 
-    [Theory]
-    [InlineData("Motorbike")]
-    [InlineData("Tractor")]
-    [InlineData("Emergency")]
-    [InlineData("Diplomat")]
-    [InlineData("Foreign")]
-    [InlineData("Military")]
-    public void GetTollFee_ForTollFreeVehicleType_IsAlwaysZero(string vehicleType)
+    [Fact]
+    public void GetTollFee_ForVehicleWithIsTollFreeTrue_IsAlwaysZero()
     {
+        // TollCalculator only cares about Vehicle.IsTollFree, not the concrete
+        // type - each vehicle class's own IsTollFree value is covered by
+        // VehicleTests instead.
         TollCalculator calculator = new TollCalculator();
-        GenericVehicle vehicle = new GenericVehicle(vehicleType);
+        GenericVehicle vehicle = new GenericVehicle("AnyType", isTollFree: true);
 
         int fee = calculator.GetTollFee(At(7, 0), vehicle);
-        
+
         Assert.Equal(0, fee);
+    }
+
+    [Fact]
+    public void GetTollFee_ForVehicleWithIsTollFreeFalse_IsChargedNormally()
+    {
+        TollCalculator calculator = new TollCalculator();
+        GenericVehicle vehicle = new GenericVehicle("AnyType", isTollFree: false);
+
+        int fee = calculator.GetTollFee(At(7, 0), vehicle);
+
+        Assert.Equal(18, fee);
     }
 
     [Fact]
@@ -275,7 +283,7 @@ public class TollCalculatorTests
     public void GetTollFee_Daily_ForTollFreeVehicle_IsAlwaysZeroAcrossManyPasses()
     {
         TollCalculator calculator = new TollCalculator();
-        GenericVehicle vehicle = new GenericVehicle("Emergency");
+        GenericVehicle vehicle = new GenericVehicle("Emergency", isTollFree: true);
         DateTime[] passes = { At(6, 15), At(7, 15), At(15, 45), At(17, 0) };
 
         int fee = calculator.GetTollFee(vehicle, passes);

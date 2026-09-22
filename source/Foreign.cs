@@ -6,5 +6,7 @@ namespace TollFeeCalculator
         {
             return "Foreign";
         }
+
+        public bool IsTollFree => true;
     }
 }

@@ -6,5 +6,7 @@ namespace TollFeeCalculator
         {
             return "Diplomat";
         }
+
+        public bool IsTollFree => true;
     }
 }
