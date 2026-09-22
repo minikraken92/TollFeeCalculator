@@ -183,6 +183,38 @@ public class TollCalculatorTests
     }
 
     [Fact]
+    public void GetTollFee_Daily_ForExactDuplicateTimestamp_OnlyCountsFirstPass()
+    {
+        // Without deduplication, two passes at the exact same instant have a
+        // zero-minute gap, which fails the "> 0" merge check in GetTollFee and
+        // gets flushed as two separate intervals - double-charging the same
+        // physical pass (36 instead of 18).
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime pass = At(7, 0);
+        DateTime[] passes = { pass, pass };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(18, fee);
+    }
+
+    [Fact]
+    public void GetTollFee_Daily_ForPassesWithinFiveSeconds_OnlyCountsFirstPass()
+    {
+        // The same vehicle can't be at two toll cameras within 5 seconds of
+        // each other, so the second reading is a duplicate of the first, not
+        // a second pass.
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime[] passes = { At(7, 0), At(7, 0).AddSeconds(3) };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(18, fee);
+    }
+
+    [Fact]
     public void GetTollFee_Daily_ForTwoPassesCloseTogether_ChargesOnlyTheHigherFee()
     {
         TollCalculator calculator = new TollCalculator();
