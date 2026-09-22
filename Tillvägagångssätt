@@ -13,3 +13,7 @@ Fixade buggen med minut hanteraren och att man inte kollar löpande på om det �
 Också funderare att varför man försöker få ut det i millisekunder sen heltalsdividerar det så man slänger bort allting som inte är minuter ändå.
 
 Fixade ett paket som hanterar helgdagar så man inte behöver hårdkoda in varje år.
+
+Bad claude lägga till graifk. Han tog eget initiativ att lägga till fordonsgrafik. Jag ändrade till tid då det är det enda som vi matar in.(Lämnar kvar datetime för ev filinläsning)
+
+Lagt till en sort då listan av datum itererades i utifrån hur den matats in vilket då timintervallen inte räknades om tiderna inte kommer i ordnig. Bad Claud lägga till tester då ändrade han även på testet då han trodde att eftersom det var hårdkodat i originalfilen att det skulle vara 2013 så nu kontrollerar den att även datum utanför 2013 är tollfree

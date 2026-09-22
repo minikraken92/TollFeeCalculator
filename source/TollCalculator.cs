@@ -18,6 +18,7 @@ public class TollCalculator
 
     public int GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
+        dates.Sort();
         DateTime intervalStart = dates[0];
         int totalFee = 0;
         int addingFee = 0;

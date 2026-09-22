@@ -130,14 +130,15 @@ public class TollCalculatorTests
     }
 
     [Fact]
-    public void GetTollFee_ForNonHolidayQuirkOfAnotherYear_IsNotTreatedAsHoliday()
+    public void GetTollFee_ForOrdinaryWeekdayOutsideJulyAndHolidays_IsCharged()
     {
-        // "All of July is toll-free" is a 2013-only quirk in the hard-coded
-        // list, not a real Swedish public holiday, so it does not generalize
-        // to other years the way SwedenPublicHoliday-backed dates do below.
+        // IsTollFreeDate has no year-locked cases anymore: weekends, real public
+        // holidays, the day before a holiday, and all of July are toll-free in
+        // any year. This is a sanity check that an otherwise ordinary weekday
+        // (outside all of those) still gets charged normally.
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
-        DateTime date = new DateTime(2014, 7, 15, 7, 0, 0);
+        DateTime date = new DateTime(2014, 8, 20, 7, 0, 0);
 
         int fee = calculator.GetTollFee(date, car);
 
@@ -179,6 +180,23 @@ public class TollCalculatorTests
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
         DateTime[] passes = { At(6, 15), At(7, 15) };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(18, fee);
+    }
+
+    [Fact]
+    public void GetTollFee_Daily_PassesOutOfChronologicalOrder_MergeWithinHourWindow()
+    {
+        // Same two passes as GetTollFee_Daily_ForTwoPassesCloseTogether_ChargesOnlyTheHigherFee
+        // (06:15 and 07:15, 60 minutes apart), but given latest-first. GetTollFee walks the
+        // array in the given order and merges into the running interval when the next
+        // date is later than intervalStart, so this out-of-order pair is  merging into the higher single fee (18) 
+        // instead of charged as two separate passes (8 + 18 = 26).
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime[] passes = { At(7, 15), At(6, 15) };
 
         int fee = calculator.GetTollFee(car, passes);
 
