@@ -6,5 +6,7 @@ namespace TollFeeCalculator
         {
             return "Military";
         }
+
+        public bool IsTollFree => true;
     }
 }

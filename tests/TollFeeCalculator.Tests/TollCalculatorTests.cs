@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using TollFeeCalculator;
 
 namespace TollFeeCalculator.Tests;
@@ -49,6 +50,18 @@ public class TollCalculatorTests
         Assert.Equal(expectedFee, fee);
     }
 
+    [Fact]
+    public void FeeSchedule_CoversEveryMinuteOfTheDayExactlyOnce()
+    {
+        for (int minuteOfDay = 0; minuteOfDay < 24 * 60; minuteOfDay++)
+        {
+            TimeOnly time = new TimeOnly(0, 0).AddMinutes(minuteOfDay);
+            int matchingBrackets = TollCalculator.FeeSchedule.Count(bracket => bracket.Contains(time));
+
+            Assert.True(matchingBrackets == 1, $"{time} matched {matchingBrackets} brackets, expected exactly 1.");
+        }
+    }
+
     // These two slots (9:00-9:29 and 11:00-14:29) fell between the fee table's
     // if/else branches and were never matched, so they are charged as free even
     // though they sat inside otherwise-tolled hours. 
@@ -67,21 +80,29 @@ public class TollCalculatorTests
         Assert.NotEqual(0, fee);
     }
 
-    [Theory]
-    [InlineData("Motorbike")]
-    [InlineData("Tractor")]
-    [InlineData("Emergency")]
-    [InlineData("Diplomat")]
-    [InlineData("Foreign")]
-    [InlineData("Military")]
-    public void GetTollFee_ForTollFreeVehicleType_IsAlwaysZero(string vehicleType)
+    [Fact]
+    public void GetTollFee_ForVehicleWithIsTollFreeTrue_IsAlwaysZero()
     {
+        // TollCalculator only cares about Vehicle.IsTollFree, not the concrete
+        // type - each vehicle class's own IsTollFree value is covered by
+        // VehicleTests instead.
         TollCalculator calculator = new TollCalculator();
-        GenericVehicle vehicle = new GenericVehicle(vehicleType);
+        GenericVehicle vehicle = new GenericVehicle("AnyType", isTollFree: true);
 
         int fee = calculator.GetTollFee(At(7, 0), vehicle);
-        
+
         Assert.Equal(0, fee);
+    }
+
+    [Fact]
+    public void GetTollFee_ForVehicleWithIsTollFreeFalse_IsChargedNormally()
+    {
+        TollCalculator calculator = new TollCalculator();
+        GenericVehicle vehicle = new GenericVehicle("AnyType", isTollFree: false);
+
+        int fee = calculator.GetTollFee(At(7, 0), vehicle);
+
+        Assert.Equal(18, fee);
     }
 
     [Fact]
@@ -168,6 +189,38 @@ public class TollCalculatorTests
         TollCalculator calculator = new TollCalculator();
         Car car = new Car();
         DateTime[] passes = { At(7, 0) };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(18, fee);
+    }
+
+    [Fact]
+    public void GetTollFee_Daily_ForExactDuplicateTimestamp_OnlyCountsFirstPass()
+    {
+        // Without deduplication, two passes at the exact same instant have a
+        // zero-minute gap, which fails the "> 0" merge check in GetTollFee and
+        // gets flushed as two separate intervals - double-charging the same
+        // physical pass (36 instead of 18).
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime pass = At(7, 0);
+        DateTime[] passes = { pass, pass };
+
+        int fee = calculator.GetTollFee(car, passes);
+
+        Assert.Equal(18, fee);
+    }
+
+    [Fact]
+    public void GetTollFee_Daily_ForPassesWithinFiveSeconds_OnlyCountsFirstPass()
+    {
+        // The same vehicle can't be at two toll cameras within 5 seconds of
+        // each other, so the second reading is a duplicate of the first, not
+        // a second pass.
+        TollCalculator calculator = new TollCalculator();
+        Car car = new Car();
+        DateTime[] passes = { At(7, 0), At(7, 0).AddSeconds(3) };
 
         int fee = calculator.GetTollFee(car, passes);
 
@@ -275,7 +328,7 @@ public class TollCalculatorTests
     public void GetTollFee_Daily_ForTollFreeVehicle_IsAlwaysZeroAcrossManyPasses()
     {
         TollCalculator calculator = new TollCalculator();
-        GenericVehicle vehicle = new GenericVehicle("Emergency");
+        GenericVehicle vehicle = new GenericVehicle("Emergency", isTollFree: true);
         DateTime[] passes = { At(6, 15), At(7, 15), At(15, 45), At(17, 0) };
 
         int fee = calculator.GetTollFee(vehicle, passes);

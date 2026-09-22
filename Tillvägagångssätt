@@ -17,3 +17,15 @@ Fixade ett paket som hanterar helgdagar så man inte behöver hårdkoda in varje
 Bad claude lägga till graifk. Han tog eget initiativ att lägga till fordonsgrafik. Jag ändrade till tid då det är det enda som vi matar in.(Lämnar kvar datetime för ev filinläsning)
 
 Lagt till en sort då listan av datum itererades i utifrån hur den matats in vilket då timintervallen inte räknades om tiderna inte kommer i ordnig. Bad Claud lägga till tester då ändrade han även på testet då han trodde att eftersom det var hårdkodat i originalfilen att det skulle vara 2013 så nu kontrollerar den att även datum utanför 2013 är tollfree
+
+Lyft ut skattebefriade fordon hanteringen till sina klasser istället för en metod för att tvinga hantering av skattebefriande och skapat test för att man inte ska råka ändra utan at man gör det medvetet och lagt till ett test för om man lägger till ett fordon men glömmer lägga till den till test.
+
+Lagt till stöd för flera dagar och månadssummering. Mest för att oftast vill man fakturerea per månad.
+
+Lagt till en ta bort knapp
+
+Eftersom jag använder ett paket som hanterar helgdagar så har jag manuellt dubbelkollat så att alla helgdagar får 0 kr (kontrollerat över 2026), där upptäckte jag att alla helgona inte är med räknad. Kan finnas fler om helgdagen infallit på söndag. 
+
+Lagt till en dubblett kontroll, borde falla inom timmes intervallet men det är en säkerhetsåtgärd vid ev ändring i kravet där det skulle kunna plockas bort
+
+Refaktorerat för hur skatt bracketsen hanteras till lista där man kontrollerar vilket intervall tiden finns i. Lagt till ett test för att försäkra sig om att det varken finns glapp eller överlapp i intervallen.
