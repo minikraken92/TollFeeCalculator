@@ -19,3 +19,7 @@ Bad claude lägga till graifk. Han tog eget initiativ att lägga till fordonsgra
 Lagt till en sort då listan av datum itererades i utifrån hur den matats in vilket då timintervallen inte räknades om tiderna inte kommer i ordnig. Bad Claud lägga till tester då ändrade han även på testet då han trodde att eftersom det var hårdkodat i originalfilen att det skulle vara 2013 så nu kontrollerar den att även datum utanför 2013 är tollfree
 
 Lyft ut skattebefriade fordon hanteringen till sina klasser istället för en metod för att tvinga hantering av skattebefriande och skapat test för att man inte ska råka ändra utan at man gör det medvetet och lagt till ett test för om man lägger till ett fordon men glömmer lägga till den till test.
+
+Lagt till stöd för flera dagar och månadssummering. Mest för att oftast vill man fakturerea per månad.
+
+Lagt till en ta bort knapp
