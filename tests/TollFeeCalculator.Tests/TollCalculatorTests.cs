@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using TollFeeCalculator;
 
 namespace TollFeeCalculator.Tests;
@@ -47,6 +48,18 @@ public class TollCalculatorTests
         int fee = calculator.GetTollFee(At(hour, minute), car);
 
         Assert.Equal(expectedFee, fee);
+    }
+
+    [Fact]
+    public void FeeSchedule_CoversEveryMinuteOfTheDayExactlyOnce()
+    {
+        for (int minuteOfDay = 0; minuteOfDay < 24 * 60; minuteOfDay++)
+        {
+            TimeOnly time = new TimeOnly(0, 0).AddMinutes(minuteOfDay);
+            int matchingBrackets = TollCalculator.FeeSchedule.Count(bracket => bracket.Contains(time));
+
+            Assert.True(matchingBrackets == 1, $"{time} matched {matchingBrackets} brackets, expected exactly 1.");
+        }
     }
 
     // These two slots (9:00-9:29 and 11:00-14:29) fell between the fee table's

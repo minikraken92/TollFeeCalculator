@@ -1,12 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using PublicHoliday;
 using TollFeeCalculator;
 
 public class TollCalculator
 {
     private static readonly SwedenPublicHoliday SwedenHolidays = new SwedenPublicHoliday();
+
+    // Each bracket owns an explicit start/end, so adding, removing or
+    // reordering one can't silently change what its neighbors cover the way
+    // a cascading if/else-if chain can.
+    internal static readonly TollFeeBracket[] FeeSchedule =
+    {
+        new(new TimeOnly(0, 0), new TimeOnly(6, 0), 0),
+        new(new TimeOnly(6, 0), new TimeOnly(6, 30), 8),
+        new(new TimeOnly(6, 30), new TimeOnly(7, 0), 13),
+        new(new TimeOnly(7, 0), new TimeOnly(8, 0), 18),
+        new(new TimeOnly(8, 0), new TimeOnly(8, 30), 13),
+        new(new TimeOnly(8, 30), new TimeOnly(15, 0), 8),
+        new(new TimeOnly(15, 0), new TimeOnly(15, 30), 13),
+        new(new TimeOnly(15, 30), new TimeOnly(17, 0), 18),
+        new(new TimeOnly(17, 0), new TimeOnly(18, 0), 13),
+        new(new TimeOnly(18, 0), new TimeOnly(18, 30), 8),
+        new(new TimeOnly(18, 30), null, 0),
+    };
 
 
     /**
@@ -77,20 +96,7 @@ public class TollCalculator
 
         TimeOnly time = TimeOnly.FromDateTime(date);
 
-        return time switch
-        {
-            _ when time.Hour < 6 => 0,
-            _ when time.Hour == 6 && time.Minute <= 29 => 8,
-            _ when time.Hour == 6 && time.Minute <= 59 => 13,
-            _ when time.Hour == 7 => 18,
-            _ when time.Hour == 8 && time.Minute <= 29 => 13,
-            _ when time.Hour < 15 => 8,
-            _ when time.Hour == 15 && time.Minute <= 29 => 13,
-            _ when time.Hour == 15 || time.Hour == 16 => 18,
-            _ when time.Hour == 17 => 13,
-            _ when time.Hour == 18 && time.Minute <= 29 => 8,
-            _ => 0
-        };
+        return FeeSchedule.First(bracket => bracket.Contains(time)).Fee;
     }
 
     private Boolean IsTollFreeDate(DateTime date)//doesent take alla helgons dag
