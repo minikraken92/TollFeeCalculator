@@ -6,5 +6,7 @@ namespace TollFeeCalculator
         {
             return "Emergency";
         }
+
+        public bool IsTollFree => true;
     }
 }

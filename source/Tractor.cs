@@ -6,5 +6,7 @@ namespace TollFeeCalculator
         {
             return "Tractor";
         }
+
+        public bool IsTollFree => true;
     }
 }
