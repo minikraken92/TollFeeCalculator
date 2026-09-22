@@ -26,4 +26,6 @@ Lagt till en ta bort knapp
 
 Eftersom jag använder ett paket som hanterar helgdagar så har jag manuellt dubbelkollat så att alla helgdagar får 0 kr (kontrollerat över 2026), där upptäckte jag att alla helgona inte är med räknad. Kan finnas fler om helgdagen infallit på söndag. 
 
-Lagt till en dubblett kontroll, borde falla inom timmes intervallet men det är en säkerhetsåtgärd vid ev ändring i 
+Lagt till en dubblett kontroll, borde falla inom timmes intervallet men det är en säkerhetsåtgärd vid ev ändring i kravet där det skulle kunna plockas bort
+
+Refaktorerat för hur skatt bracketsen hanteras till lista där man kontrollerar vilket intervall tiden finns i. Lagt till ett test för att försäkra sig om att det varken finns glapp eller överlapp i intervallen.
