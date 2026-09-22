@@ -72,7 +72,7 @@ public class TollCalculator
         };
     }
 
-    private Boolean IsTollFreeDate(DateTime date)
+    private Boolean IsTollFreeDate(DateTime date)//doesent take alla helgons dag
     {
         int year = date.Year;
         int month = date.Month;
